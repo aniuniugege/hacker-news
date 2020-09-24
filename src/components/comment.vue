@@ -8,6 +8,15 @@
         <div class="text" v-html="comment.text"></div>
         <a href="javascript:void(0)" @click="reply">reply</a>
 
+        <div class="reply-container" v-show="open">
+           <textarea placeholder="content" v-model="content" cols="20" rows="5" ref="textarea"></textarea>
+
+            <div class="input-group">
+              <input type="submit" value="submit" @click="submitReply">
+              <input type="submit" value="canel" @click="canelReply">
+            </div>
+        </div>
+
         <div class="comment-child" v-show="comment.expand">
             <comment v-for="item in comment.kids" :key="item" :id="item"></comment>
         </div>
@@ -16,10 +25,16 @@
 </template>
 
 <script>
-import { pluralize } from '@/util'
+import { pluralize, generateUUID } from '@/util'
 export default {
   name: 'comment',
   props: ['id'],
+  data () {
+    return {
+      content: '',
+      open: false
+    }
+  },
   computed: {
     userId () {
       return this.$store.state.user.id
@@ -57,13 +72,51 @@ export default {
   methods: {
     exandItem (item) {
       this.$set(item, 'expand', !item.expand)
+      this.fetchComments(item)
     },
     reply () {
       if (!this.userId) {
         alert('please loginIn')
         this.$router.push('/login')
+        return
       }
+      this.open = !this.open
+      this.$refs.textarea.focus()
+    },
+    submitReply () {
+      const addReply = {'items': [{
+        by: this.userName,
+        id: generateUUID(),
+        parent: this.id,
+        text: this.content,
+        time: Date.now() / 1000, // unix date
+        type: 'comment'
+      }]}
+      this.$store.commit('list/SET_ITEMS', addReply)
+      this.$store.commit('list/ADD_ITEMS', addReply)
+      this.content = ''
+      this.open = false
+      this.$set(this.comment, 'expand', true)
+      alert('add reply success')
+    },
+    canelReply () {
+      this.open = false
+      this.content = ''
+    },
+    fetchComments (item) {
+      if (!item || !item.kids) {
+        return
+      }
+      fetchComments(this.$store, item)
     }
+  }
+}
+
+function fetchComments (store, item) {
+  if (item && item.kids) {
+    return store.dispatch('list/FETCH_ITEMS', {
+      ids: item.kids
+    })
   }
 }
 </script>

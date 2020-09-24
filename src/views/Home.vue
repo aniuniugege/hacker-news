@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import { pluralize } from '@/util'
+import { pluralize, generateUUID } from '@/util'
 import comment from '@/components/comment'
 const itemId = 21565624
 export default {
@@ -83,7 +83,6 @@ export default {
   watch: {
     item: 'fetchComments'
   },
-
   methods: {
     fetchComments () {
       if (!this.item || !this.item.kids) {
@@ -97,9 +96,22 @@ export default {
         this.$router.push('/login')
         return
       }
-      console.log('signIn')
-      // 调用评论接口
-      // this.$store.commit('list/')
+      if (!this.newComments) {
+        alert('comments hope to not empty')
+        return
+      }
+      const addComments = { items: [{
+        by: this.userName,
+        id: generateUUID(),
+        parent: itemId,
+        text: this.newComments,
+        time: Date.now() / 1000, // unix date
+        type: 'comment'
+      }] }
+      this.$store.commit('list/SET_ITEMS', addComments)
+      this.$store.commit('list/ADD_ITEMS', addComments)
+      this.newComments = ''
+      alert('add comments success')
     },
     ifLogin () {
       if (!this.userId) {
@@ -114,9 +126,7 @@ function fetchComments (store, item) {
   if (item && item.kids) {
     return store.dispatch('list/FETCH_ITEMS', {
       ids: item.kids
-    }).then(() => Promise.all(item.kids.map(id => {
-      return fetchComments(store, store.state.list.items[id])
-    })))
+    })
   }
 }
 </script>

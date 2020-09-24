@@ -3,9 +3,9 @@
   <div class="main">
     <h4 class="title">
       <div class="normal-title">
-        <router-link to="/login">登录</router-link>
+        <router-link to="/login">login</router-link>
         <b>·</b>
-        <router-link to="/register">注册</router-link>
+        <router-link to="/register">register</router-link>
       </div>
     </h4>
     <div class="js-sign-in-container">

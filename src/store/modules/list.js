@@ -12,13 +12,21 @@ const mutations = {
             Vue.set(state.items, item.id, item)
           }
         })
+    },
+    ADD_ITEMS: (state, { items }) => {
+        items.forEach(item => {
+            if (item) {
+                if (!state.items[item.parent].kids) {
+                    state.items[item.parent].kids = []
+                }
+                state.items[item.parent].kids.push(item.id)  
+            }
+          })  
     }
 }
   
 const actions = {
     FETCH_ITEMS: ({ commit, state }, { ids }) => {
-        // on the client, the store itself serves as a cache.
-        // only fetch items that we do not already have, or has expired (3 minutes)
         const now = Date.now()
         ids = ids.filter(id => {
           const item = state.items[id]

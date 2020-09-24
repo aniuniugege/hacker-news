@@ -16,13 +16,18 @@
       <label for="">确定密码:</label>
       <input type="password" placeholder="确定密码" />
     </div>
-    <input type="submit" value="注册" />
+    <input type="submit" value="注册" @click="registered"/>
   </form>
 </template>
 
 <script>
 export default {
-  name: 'RegisterForm'
+  name: 'RegisterForm',
+  methods: {
+    registered() {
+      alert('注册成功')
+    }
+  }
 }
 </script>
 
